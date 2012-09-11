@@ -42,8 +42,13 @@ public class FuzzyArrayList extends ArrayList<String>{
 			}
 		}
 		if(sensitivity==2){
-			if(stringToSearch.equalsIgnoreCase("as") | stringToSearch.equalsIgnoreCase("cant")){
-				return false;
+			if(stringToSearch.length()<=4){
+					String noVowel=calculateLowPhone(stringToSearch);
+					if(noVowel.equalsIgnoreCase("")){
+						return false;
+					}else{
+						if(lowPhonetic.contains(noVowel));
+					}
 			}
 			String noVowel=calculateMedPhone(stringToSearch);
 			if (noVowel.equalsIgnoreCase("")){
@@ -68,7 +73,7 @@ public class FuzzyArrayList extends ArrayList<String>{
 	
 	
 	private String calculateLowPhone(String string){
-		return phoneticPairFilter(deLeet(noDouble(string)));
+		return phoneticPairFilter(deLeet(noDoubleVowel(string)));
 	}
 	private String calculateMedPhone(String string){
 		String currentString=vowelFilter(phoneticPairFilter(deLeet(noDouble(string))));
@@ -87,6 +92,9 @@ public class FuzzyArrayList extends ArrayList<String>{
 	}
 	private String noDouble(String string){
 		return string.replaceAll("(.)\\1+", "$1");
+	}
+	private String noDoubleVowel(String string){
+		return string.replaceAll("([aeiouy])\\1+", "$1");
 	}
 	private String deLeet(String string){
 		return string.replace("es", "").replace("!", "i").replace("@", "a").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps");
