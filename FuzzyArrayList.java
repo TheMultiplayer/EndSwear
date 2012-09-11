@@ -47,7 +47,9 @@ public class FuzzyArrayList extends ArrayList<String>{
 					if(noVowel.equalsIgnoreCase("")){
 						return false;
 					}else{
-						if(lowPhonetic.contains(noVowel));
+						if(lowPhonetic.contains(noVowel)){
+							return true;
+						}
 					}
 			}
 			String noVowel=calculateMedPhone(stringToSearch);

@@ -47,6 +47,18 @@ public class EndSwearMain extends JavaPlugin{
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(cmd.getName().equalsIgnoreCase("swear") & args.length>0){
+			if(args[0].equalsIgnoreCase("contains") & sender.hasPermission("EndSwear.list") & args.length>1){
+				for(String word:args){
+				    if(word.equalsIgnoreCase("contains")){
+				    	
+				    }else if(cfgMgr.getWordList().contains(word)){
+						sender.sendMessage("The word "+word+ChatColor.GREEN+" is"+ChatColor.RESET+" in"+" the dictionary!");
+					}else{
+						sender.sendMessage("The word "+word+ChatColor.RED+" is not"+ChatColor.RESET+" in"+" the dictionary!");
+					}
+				}
+				return true;
+			}
 			if(args[0].equalsIgnoreCase("reload")& sender.hasPermission("EndSwear.reload") ){
 				reloadConfig();
 				this.getServer().getPluginManager().disablePlugin(this);

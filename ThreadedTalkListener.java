@@ -29,10 +29,7 @@ public class ThreadedTalkListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		if(event.getMessage().toLowerCase().startsWith("http://") || event.getMessage().toLowerCase().startsWith("https://")){
-			event.setMessage(ChatColor.RESET.toString()+ChatColor.BLUE.toString()+ChatColor.UNDERLINE.toString()+event.getMessage()+ChatColor.RESET);
-		}
-		String[] msg=simplify(ChatColor.stripColor(event.getMessage())).replaceAll("\\p{Punct}", "").split(" ");
+		String[] msg=simplify(ChatColor.stripColor(event.getMessage())).replaceAll("[,./:;!-`~()\\[\\]{}+ ]", "").split(" ");
 
 		if(!config.getFilterUse()){
 			if(config.getMatchMode().equalsIgnoreCase("fuzzy")){
