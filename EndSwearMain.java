@@ -47,14 +47,34 @@ public class EndSwearMain extends JavaPlugin{
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(cmd.getName().equalsIgnoreCase("swear") & args.length>0){
+			if(args[0].equalsIgnoreCase("report") & sender.hasPermission("EndSwear.report") & args.length>1){
+				for(String playerName:args){
+					if(playerName.equalsIgnoreCase("contains")){
+						String name;
+						if(getServer().getPlayer(playerName)!=null){
+							name=getServer().getPlayer(playerName).getDisplayName();
+							cfgMgr.reportSwear(getServer().getPlayer(playerName));
+							cfgMgr.addActionThread(new ActionThread(getServer().getPlayer(playerName),cfgMgr.getPunishment(),cfgMgr));
+						}else{
+							name=getServer().getOfflinePlayer(playerName).getName();
+							sender.sendMessage(ChatColor.RED+"The player is not online! Attempting to report swear with offline playerdata...");
+							cfgMgr.reportSwear(getServer().getOfflinePlayer(playerName).getName());
+						}
+						sender.sendMessage("You have successfully "+ChatColor.RED+" reported "+ChatColor.RESET+"player "+ChatColor.GOLD+name+".");
+						
+					}
+				}
+				return true;
+				
+			}
 			if(args[0].equalsIgnoreCase("contains") & sender.hasPermission("EndSwear.list") & args.length>1){
 				for(String word:args){
 				    if(word.equalsIgnoreCase("contains")){
-				    	
 				    }else if(cfgMgr.getWordList().contains(word)){
 						sender.sendMessage("The word "+word+ChatColor.GREEN+" is"+ChatColor.RESET+" in"+" the dictionary!");
 					}else{
 						sender.sendMessage("The word "+word+ChatColor.RED+" is not"+ChatColor.RESET+" in"+" the dictionary!");
+						sender.sendMessage("Phonetic match on this returns "+Boolean.toString(cfgMgr.getWordList().phoneticMatch(word, 2))+" for processed term "+cfgMgr.getWordList().getPhoneticMatchingWord(word, 2));
 					}
 				}
 				return true;

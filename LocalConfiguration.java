@@ -159,12 +159,15 @@ public class LocalConfiguration {
 	public Economy getEconomy(){
 		return econ;
 	}
-	public synchronized void output(Object obj){
+	public void output(Object obj){
 		plugin.getLogger().info((String) obj);
 	}
-	public synchronized void reportSwear(Player player){
+	public void reportSwear(Player player){
 			tracker.addSwear(player);
 	}
+	public void reportSwear(String player){
+		tracker.addSwear(player);
+}
 	public int getSwears(Player player){
 		return tracker.getSwear(player);
 	}
@@ -234,5 +237,8 @@ public class LocalConfiguration {
 			return true;
 		}
 		return false;
+	}
+	public PlayerTrackingList getTracker(){
+		return tracker;
 	}
 }

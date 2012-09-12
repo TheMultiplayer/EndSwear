@@ -13,6 +13,7 @@ public class FuzzyArrayList extends ArrayList<String>{
 	private final String vowelChar="%";
 
 	public boolean approxContains(String stringToSearch,int threshold){
+		stringToSearch=UnEd(stringToSearch.toLowerCase());
 		List<Future<Boolean>> threadedReturns=new ArrayList<Future<Boolean>>();
 		ExecutorService executor = Executors.newFixedThreadPool(4);
 		boolean swear = false;
@@ -28,8 +29,35 @@ public class FuzzyArrayList extends ArrayList<String>{
 		}
 		return swear;
 	}
-	public boolean phoneticMatch(String stringToSearch, byte sensitivity){
-		if(sensitivity==3){
+	public String getPhoneticMatchingWord(String stringToSearch, int i){
+		stringToSearch.toLowerCase();
+		if(this.contains(stringToSearch)){
+			return stringToSearch;
+		}
+		if(i==3){
+			String noVowel=calculateMedPhone(stringToSearch);
+				return noVowel;
+		}
+		if(i==2){
+			if(stringToSearch.length()<=4){
+					String noVowel=calculateLowPhone(stringToSearch);
+						return noVowel;
+			}
+			String noVowel=calculateMedPhone(stringToSearch);
+			if (medPhonetic.contains(noVowel)){
+				return noVowel;
+			}
+		}else if(i==1){
+				return calculateLowPhone(stringToSearch);
+		}
+		return "ERROR : INVALID THRESHOLD";
+	}
+	public boolean phoneticMatch(String stringToSearch, int i){
+		stringToSearch=UnEd(stringToSearch.toLowerCase());
+		if(this.contains(stringToSearch)){
+			return true;
+		}
+		if(i==3){
 			if(stringToSearch.equalsIgnoreCase("as") | stringToSearch.equalsIgnoreCase("cant")){
 				return false;
 			}
@@ -41,7 +69,7 @@ public class FuzzyArrayList extends ArrayList<String>{
 				return true;
 			}
 		}
-		if(sensitivity==2){
+		if(i==2){
 			if(stringToSearch.length()<=4){
 					String noVowel=calculateLowPhone(stringToSearch);
 					if(noVowel.equalsIgnoreCase("")){
@@ -59,7 +87,7 @@ public class FuzzyArrayList extends ArrayList<String>{
 			if (medPhonetic.contains(noVowel)){
 				return true;
 			}
-		}else if(sensitivity==1){
+		}else if(i==1){
 			return lowPhonetic.contains(phoneticPairFilter(noDouble(stringToSearch)));
 		}
 		return false;
@@ -93,12 +121,15 @@ public class FuzzyArrayList extends ArrayList<String>{
 		return string.replace("ck", "k").replace("ed", "d").replace("ou", "u").replace("eigh", "").replace("kn", "n").replace("ph", "f").replace("gh","g").replace("cs", "x").replace("ks","s").replace("es", "s").replace("lk", "k").replace("mn", "m").replaceAll("(ing|in|er|ity|ies|able|y|ible|ous|it)$","");
 	}
 	private String noDouble(String string){
-		return string.replaceAll("(.)\\1+", "$1");
+		return string.replace("oo","%").replaceAll("(.)\\1+", "$1");
 	}
 	private String noDoubleVowel(String string){
 		return string.replaceAll("([aeiouy])\\1+", "$1");
 	}
 	private String deLeet(String string){
 		return string.replace("es", "").replace("!", "i").replace("@", "a").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps");
+	}
+	private String UnEd(String string){
+		return string.replaceAll("(ing|ed|er)", "");
 	}
 }
