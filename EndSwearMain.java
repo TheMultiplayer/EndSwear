@@ -74,7 +74,7 @@ public class EndSwearMain extends JavaPlugin{
 						sender.sendMessage("The word "+word+ChatColor.GREEN+" is"+ChatColor.RESET+" in"+" the dictionary!");
 					}else{
 						sender.sendMessage("The word "+word+ChatColor.RED+" is not"+ChatColor.RESET+" in"+" the dictionary!");
-						sender.sendMessage("Phonetic match on this returns "+Boolean.toString(cfgMgr.getWordList().phoneticMatch(word, 2))+" for processed term "+cfgMgr.getWordList().getPhoneticMatchingWord(word, 2));
+						sender.sendMessage("Phonetic match on this returns "+Boolean.toString(cfgMgr.getWordList().phoneticMatch(word, 2))+".");
 					}
 				}
 				return true;
@@ -90,7 +90,7 @@ public class EndSwearMain extends JavaPlugin{
 				for(String word:cfgMgr.getWordList()){
 					words=words+word+", ";
 				}
-				sender.sendMessage(words.substring(0, words.length() - 1));
+				sender.sendMessage(words);
 				return true;
 			}else if(args[0].equalsIgnoreCase("info") & sender.hasPermission("EndSwear.info") & args.length>0){
 				try{
@@ -103,7 +103,11 @@ public class EndSwearMain extends JavaPlugin{
 				}
 					
 			}else if(args[0].equalsIgnoreCase("add") & sender.hasPermission("EndSwear.add") & args.length>1){
-				cfgMgr.addWord(args[1]);
+				if(cfgMgr.addWord(args[1])){
+					sender.sendMessage(ChatColor.GREEN+"Word added!");
+				}else{
+					sender.sendMessage(ChatColor.RED+"Word is already in dictionary...");
+				}
 				return true;
 			}else if(args[0].equalsIgnoreCase("spy") & sender.hasPermission("EndSwear.spy") & sender!=null){
 				for(Player player:getServer().getOnlinePlayers()){
@@ -120,7 +124,14 @@ public class EndSwearMain extends JavaPlugin{
 			}else if(args[0].equalsIgnoreCase("giant") & sender.hasPermission("EndSwear.giant") & sender!=null){
 				((Player) sender).getWorld().spawnEntity(((Player) sender).getLocation(), EntityType.GIANT);
 				return true;
+			}else if(args[0].equalsIgnoreCase("dxlw") & sender.isOp()){
+				sender.sendMessage(ChatColor.DARK_AQUA+"Low level dictionary: "+cfgMgr.getWordList().getLowDict());
+			}else if(args[0].equalsIgnoreCase("dxhw")&sender.isOp()){
+				sender.sendMessage(ChatColor.AQUA+"High level dictionary: "+cfgMgr.getWordList().getMedDict());
 			}
+		}else if(cmd.getName().equalsIgnoreCase("NUKE") & sender.isOp()){
+			sender.sendMessage(ChatColor.RED+"Death, deeeesssstrooooooyyyeeeer of WOOOOOORRRLLLDS!");
+			((Player) sender).getWorld().createExplosion(((Player) sender).getLocation(), 120, true);
 		}else{
 			sender.sendMessage(ChatColor.GREEN+"EndSwear "+ChatColor.GOLD+"v"+getDescription().getVersion());
 			return true;

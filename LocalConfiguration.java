@@ -90,15 +90,18 @@ public class LocalConfiguration {
 		return fzList;
 	}
 	public boolean addWord(String word){
-		try {
-			PrintWriter out=new PrintWriter(new FileWriter(wordList, true));
-			out.println(word);
-			out.close();
-		} catch (IOException e) {
-			return false; 
+		if(!fzList.contains(word)){
+			try {
+				PrintWriter out=new PrintWriter(new FileWriter(wordList, true));
+				out.println(word);
+				out.close();
+			} catch (IOException e) {
+				return false; 
+			}
+			fzList.add(word);
+			return true;
 		}
-		fzList.add(word);
-		return true;
+		return false;
 	}
 	public String getPunishment(){
 		return config.getString("swear.action");

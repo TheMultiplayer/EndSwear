@@ -3,6 +3,7 @@ package me.FreeSpace2.EndSwear;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -29,8 +30,12 @@ public class ThreadedTalkListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		String[] msg=simplify(ChatColor.stripColor(event.getMessage())).replaceAll("[,./:;!-`~()\\[\\]{}+ ]", "").split(" ");
-
+		List<String> msg=Arrays.asList(simplify(ChatColor.stripColor(event.getMessage())).split("[,./:;!-`~()\\[\\]{}+ ]"));
+		for(String word:msg){
+			if(word.matches("[aeiouy]")){
+				msg.remove(word);
+			}
+		}
 		if(!config.getFilterUse()){
 			if(config.getMatchMode().equalsIgnoreCase("fuzzy")){
 				for(String word:msg){
@@ -66,6 +71,7 @@ public class ThreadedTalkListener implements Listener {
 				for(String word:msg){
 					if(wordList.phoneticMatch(word, config.getThreshold())){
 						words.add(word);
+						event.getPlayer().sendMessage(wordList.getPhoneticMatchingWord(word, 2));
 					}
 				}
 			}else if(config.getMatchMode().equalsIgnoreCase("reg")){
@@ -77,16 +83,19 @@ public class ThreadedTalkListener implements Listener {
 			}
 			if(!words.isEmpty()){
 				punish(event.getPlayer());
-				censor(event,words);
+				censor(event,words,event.getPlayer());
 			};
 		}
 	}
 	private void punish(Player player){
 		config.reportSwear(player);
-		config.output("Player "+player.getDisplayName()+" swore! Warning number "+config.getSwears(player)+".");
 		config.addActionThread(new ActionThread(player, config.getPunishment(), config));
 	}
-	private void censor(AsyncPlayerChatEvent event,List<String> words){
+	private void censor(AsyncPlayerChatEvent event,List<String> words,Player player){
+		config.output("Player "+player.getDisplayName()+" swore! Warning number "+config.getSwears(player)+".  Words:");
+		for(String word:words){
+			config.output(word);
+		}
 		if(config.useBleep()){
 			String msg=event.getMessage();
 			for(String word:words){
@@ -94,7 +103,6 @@ public class ThreadedTalkListener implements Listener {
 			}
 			event.setMessage(msg);
 		}else{
-			event.setMessage("");
 			event.setCancelled(true);
 		}
 	}

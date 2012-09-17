@@ -63,7 +63,7 @@ public class ActionThread implements Runnable{
 		}
 	}
 	private void warn(){
-		player.sendMessage(config.getWarnMessage().replace("<PLAYER>", player.getDisplayName()).replace("<WARNINGS>", Byte.toString(config.warningsLeft(player))));
+		player.sendMessage(ChatColor.LIGHT_PURPLE+"No swearing, "+player.getDisplayName()+"! This is your "+ChatColor.GOLD+config.getSwears(player)+Ordinal.getOrdinal(config.getSwears(player))+ChatColor.LIGHT_PURPLE+" warning.");
 	}
 
 }

@@ -50,7 +50,21 @@ public class FuzzyArrayList extends ArrayList<String>{
 		}else if(i==1){
 				return calculateLowPhone(stringToSearch);
 		}
-		return "ERROR : INVALID THRESHOLD";
+		return "No computation valid!";
+	}
+	public String getLowDict(){
+		String words=null;
+		for(String wordle:lowPhonetic){
+			words=words+", "+wordle;
+		}
+		return words;
+	}
+	public String getMedDict(){
+		String words=null;
+		for(String wordle:medPhonetic){
+			words=words+", "+wordle;
+		}
+		return words;
 	}
 	public boolean phoneticMatch(String stringToSearch, int i){
 		stringToSearch=UnEd(stringToSearch.toLowerCase());
@@ -58,9 +72,6 @@ public class FuzzyArrayList extends ArrayList<String>{
 			return true;
 		}
 		if(i==3){
-			if(stringToSearch.equalsIgnoreCase("as") | stringToSearch.equalsIgnoreCase("cant")){
-				return false;
-			}
 			String noVowel=calculateMedPhone(stringToSearch);
 			if (noVowel.equalsIgnoreCase("")){
 				return false;
@@ -93,6 +104,8 @@ public class FuzzyArrayList extends ArrayList<String>{
 		return false;
 	}
 	public void genDictionary(){
+		medPhonetic=new ArrayList<String>();
+		lowPhonetic=new ArrayList<String>();
 		for(String word:this){
 			medPhonetic.add(calculateMedPhone(word));
 			lowPhonetic.add(calculateLowPhone(word));
@@ -107,29 +120,24 @@ public class FuzzyArrayList extends ArrayList<String>{
 	}
 	private String calculateMedPhone(String string){
 		String currentString=vowelFilter(phoneticPairFilter(deLeet(noDouble(string))));
-		if(string.length()>0){
-			if((string.length()<=4 & string.charAt(0)=="d".charAt(0))|string.length()<=3){
-				currentString=calculateLowPhone(string);
-			}
-		}
 		return currentString;
 	}
 	private String vowelFilter(String string){		
 		return string.replaceAll("(^[aeiouy])|([aeiouy]$)",vowelChar).replaceAll("[aeiouy]","").replaceAll("s$","");
 	}
 	private String phoneticPairFilter(String string){
-		return string.replace("ck", "k").replace("ed", "d").replace("ou", "u").replace("eigh", "").replace("kn", "n").replace("ph", "f").replace("gh","g").replace("cs", "x").replace("ks","s").replace("es", "s").replace("lk", "k").replace("mn", "m").replaceAll("(ing|in|er|ity|ies|able|y|ible|ous|it)$","");
+		return string.replace("ck", "k").replace("ed", "d").replace("ou", "u").replace("eigh", "a").replace("kn", "n").replace("ph", "f").replace("gh","g").replace("cs", "x").replace("ks","s").replace("es", "s").replace("lk", "k").replace("mn", "m").replace("q","k").replaceAll("h$","");
 	}
 	private String noDouble(String string){
-		return string.replace("oo","%").replaceAll("(.)\\1+", "$1");
+		return string.replaceAll("(.)\\1+", "$1").replace("oo",vowelChar);
 	}
 	private String noDoubleVowel(String string){
-		return string.replaceAll("([aeiouy])\\1+", "$1");
+		return string.replaceAll("([aeiuy])\\1+", "$1").replace("oo",vowelChar);
 	}
 	private String deLeet(String string){
 		return string.replace("es", "").replace("!", "i").replace("@", "a").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps");
 	}
 	private String UnEd(String string){
-		return string.replaceAll("(ing|ed|er)", "");
+		return string.replaceAll("(ing|in|er|ity|ies|able|y|ible|ous|ed)$","").replaceAll("es$","");
 	}
 }
