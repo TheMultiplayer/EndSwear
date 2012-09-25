@@ -3,7 +3,6 @@ package me.FreeSpace2.EndSwear;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -30,62 +29,32 @@ public class ThreadedTalkListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		List<String> msg=Arrays.asList(simplify(ChatColor.stripColor(event.getMessage())).split("[,./:;!-`~()\\[\\]{}+ ]"));
-		for(String word:msg){
-			if(word.matches("[aeiouy]")){
-				msg.remove(word);
+		String[] msg=simplify(ChatColor.stripColor(event.getMessage())).split("[,./:;-`~()\\[\\]{}+ ]");
+		List<String> words=new ArrayList<String>();
+		if(config.getMatchMode().equalsIgnoreCase("fuzzy")){
+			for(String word:msg){
+				if(wordList.approxContains(word, config.getThreshold())){
+					words.add(word);
+				}
+			}
+		}else if(config.getMatchMode().equalsIgnoreCase("pho")){
+			for(String word:msg){
+				if(wordList.phoneticMatch(word, config.getThreshold())){
+					words.add(word);
+					event.getPlayer().sendMessage(wordList.getPhoneticMatchingWord(word, 2));
+				}
+			}
+		}else if(config.getMatchMode().equalsIgnoreCase("reg")){
+			for(String word:msg){
+				if(wordList.contains(word)){
+					words.add(word);
+				}
 			}
 		}
-		if(!config.getFilterUse()){
-			if(config.getMatchMode().equalsIgnoreCase("fuzzy")){
-				for(String word:msg){
-					if(wordList.approxContains(word, config.getThreshold())){
-						punish(event.getPlayer());
-						break;
-					}
-				}
-			}else if(config.getMatchMode().equalsIgnoreCase("pho")){
-				for(String word:msg){
-					if(wordList.phoneticMatch(word,config.getThreshold())){
-						punish(event.getPlayer());
-						break;
-					}
-				}
-			}else if(config.getMatchMode().equalsIgnoreCase("reg")){
-				for(String word:msg){
-					if(wordList.contains(word)){
-						punish(event.getPlayer());
-						break;
-					}
-				}
-			}
-		}else{
-			List<String> words=new ArrayList<String>();
-			if(config.getMatchMode().equalsIgnoreCase("fuzzy")){
-				for(String word:msg){
-					if(wordList.approxContains(word, config.getThreshold())){
-						words.add(word);
-					}
-				}
-			}else if(config.getMatchMode().equalsIgnoreCase("pho")){
-				for(String word:msg){
-					if(wordList.phoneticMatch(word, config.getThreshold())){
-						words.add(word);
-						event.getPlayer().sendMessage(wordList.getPhoneticMatchingWord(word, 2));
-					}
-				}
-			}else if(config.getMatchMode().equalsIgnoreCase("reg")){
-				for(String word:msg){
-					if(wordList.contains(word)){
-						words.add(word);
-					}
-				}
-			}
-			if(!words.isEmpty()){
-				punish(event.getPlayer());
-				censor(event,words,event.getPlayer());
-			};
-		}
+		if(!words.isEmpty()){
+			punish(event.getPlayer());
+			censor(event,words,event.getPlayer());
+		};
 	}
 	private void punish(Player player){
 		config.reportSwear(player);

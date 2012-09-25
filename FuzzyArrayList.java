@@ -39,6 +39,9 @@ public class FuzzyArrayList extends ArrayList<String>{
 				return noVowel;
 		}
 		if(i==2){
+			if(stringToSearch.length()<=2){
+				return stringToSearch;
+			}
 			if(stringToSearch.length()<=4){
 					String noVowel=calculateLowPhone(stringToSearch);
 						return noVowel;
@@ -81,6 +84,9 @@ public class FuzzyArrayList extends ArrayList<String>{
 			}
 		}
 		if(i==2){
+			if(stringToSearch.length()<=2){
+				return this.contains(stringToSearch);
+			}
 			if(stringToSearch.length()<=4){
 					String noVowel=calculateLowPhone(stringToSearch);
 					if(noVowel.equalsIgnoreCase("")){
@@ -132,7 +138,7 @@ public class FuzzyArrayList extends ArrayList<String>{
 		return string.replaceAll("(.)\\1+", "$1").replace("oo",vowelChar);
 	}
 	private String noDoubleVowel(String string){
-		return string.replaceAll("([aeiuy])\\1+", "$1").replace("oo",vowelChar);
+		return string.replaceAll("([aeiuy])\\1+", vowelChar);
 	}
 	private String deLeet(String string){
 		return string.replace("es", "").replace("!", "i").replace("@", "a").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps");
