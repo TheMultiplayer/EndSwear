@@ -7,10 +7,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class EndSwearJoinListener implements Listener {
 	private LocalConfiguration config;
-	private BanList banList;
+	private OfflineSafePlayerList banList;
 	EndSwearJoinListener(LocalConfiguration config){
 		this.config=config;
-		banList=config.getBanList();
+		banList=config.getBanMuteList().getBanList();
 	}
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event){

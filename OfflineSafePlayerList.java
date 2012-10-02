@@ -1,4 +1,5 @@
 package me.FreeSpace2.EndSwear;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,7 +7,7 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 
-public class OfflineSafePlayerList {
+public class OfflineSafePlayerList implements Serializable{
 	protected List<String>list=new ArrayList<String>();
 	public synchronized void add(Player player){
 		list.add(player.getDisplayName());
@@ -19,5 +20,8 @@ public class OfflineSafePlayerList {
 	}
 	public boolean isOnList(Player player){
 		return list.contains(player.getDisplayName());
+	}
+	public void add(String player) {
+		list.add(player);
 	}
 }

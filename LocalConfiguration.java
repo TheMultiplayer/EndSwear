@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -18,10 +19,10 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class LocalConfiguration {
-	private BanList banList=new BanList(this);
-	private MuteList muteList=new MuteList(this);
+	private BanMuteHandler BMH=new BanMuteHandler();
 	private boolean status=true;
 	private Configuration config;
 	private Plugin plugin;
@@ -183,11 +184,8 @@ public class LocalConfiguration {
 	public boolean getSendJoinMessage(){
 		return config.getBoolean("inform");
 	}
-	public void scheduleBan(Runnable runner){
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, runner, config.getLong("swear.ban.time")*20L);
-	}
-	public void scheduleMute(Runnable runner){
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, runner, config.getLong("swear.mute.time")*20L);
+	public BukkitScheduler getScheduler(){
+		return plugin.getServer().getScheduler();
 	}
 	public int getLimit(){
 		return config.getInt("swear.warnings");
@@ -198,11 +196,8 @@ public class LocalConfiguration {
 	public byte warningsLeft(Player player){
 		return (byte) (getSwears(player)%(config.getInt("swear.warnings")+1));
 	}
-	public BanList getBanList(){
-		return banList;
-	}
-	public MuteList getMuteList(){
-		return muteList;
+	public BanMuteHandler getBanMuteList(){
+		return BMH;
 	}
 	public String getKickMessage(){
 		return config.getString("swear.kick.message").replaceAll("(&([a-f0-9]))", "\u00A7$2");
@@ -243,5 +238,8 @@ public class LocalConfiguration {
 	}
 	public PlayerTrackingList getTracker(){
 		return tracker;
+	}
+	public Logger getLog() {
+		return plugin.getLogger();
 	}
 }

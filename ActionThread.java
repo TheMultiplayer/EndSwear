@@ -11,11 +11,13 @@ public class ActionThread implements Runnable{
 	private Economy econ;
 	private Player player;
 	private LocalConfiguration config;
+	private BanMuteHandler banMuteHandler;
 	ActionThread(Player player, String action, LocalConfiguration config){
 		this.action=action;
 		this.player=player;
 		this.config=config;
 		this.econ=config.getEconomy();
+		this.banMuteHandler=config.getBanMuteList();
 	}
 	public void run() {
 		if(action.equalsIgnoreCase("kick")){
@@ -33,12 +35,12 @@ public class ActionThread implements Runnable{
 			return;
 		}else if(action.equalsIgnoreCase("tempban") & config.playerExceededWarnings(player)){
 				config.output("Temporarily banning player "+player.getDisplayName()+".");
-				config.getBanList().add(player);
+				banMuteHandler.getBanList().add(player);
 				player.kickPlayer(config.getBanMessage().replace("<PLAYER>", player.getDisplayName()));
 			return;
 		}else if(action.equalsIgnoreCase("mute") & config.playerExceededWarnings(player)){
 				config.output("Muting player "+player.getDisplayName()+".");
-				config.getMuteList().add(player);
+				banMuteHandler.getMuteList().add(player);
 				player.sendMessage(config.getMuteMessage().replace("<PLAYER>", player.getDisplayName()));
 				for(OfflinePlayer OPlayer:player.getServer().getOperators()){
 					if(OPlayer.isOnline()){

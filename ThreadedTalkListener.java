@@ -4,6 +4,7 @@ import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,11 +15,15 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 public class ThreadedTalkListener implements Listener {
 	private FuzzyArrayList wordList=new FuzzyArrayList();
 	private LocalConfiguration config;
-	private MuteList muteList;
+	private OfflineSafePlayerList muteList;
+	private PlayerTrackingList trackerList;
+	private Logger log;
 	ThreadedTalkListener(LocalConfiguration cfgMgr){
 		wordList=cfgMgr.getWordList();
 		config=cfgMgr;
-		muteList=cfgMgr.getMuteList();
+		muteList=cfgMgr.getBanMuteList().getMuteList();
+		trackerList=config.getTracker();
+		log=config.getLog();
 	}
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event){
@@ -41,7 +46,6 @@ public class ThreadedTalkListener implements Listener {
 			for(String word:msg){
 				if(wordList.phoneticMatch(word, config.getThreshold())){
 					words.add(word);
-					event.getPlayer().sendMessage(wordList.getPhoneticMatchingWord(word, 2));
 				}
 			}
 		}else if(config.getMatchMode().equalsIgnoreCase("reg")){
@@ -57,11 +61,26 @@ public class ThreadedTalkListener implements Listener {
 		};
 	}
 	private void punish(Player player){
-		config.reportSwear(player);
+		trackerList.addSwear(player);
+		
 		config.addActionThread(new ActionThread(player, config.getPunishment(), config));
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private void censor(AsyncPlayerChatEvent event,List<String> words,Player player){
-		config.output("Player "+player.getDisplayName()+" swore! Warning number "+config.getSwears(player)+".  Words:");
+		log.info("Player "+player.getDisplayName()+" swore! Warning number "+config.getSwears(player)+".  Words:");
 		for(String word:words){
 			config.output(word);
 		}
@@ -75,6 +94,10 @@ public class ThreadedTalkListener implements Listener {
 			event.setCancelled(true);
 		}
 	}
+	
+	
+	
+	
 	private String simplify(String string){
 		return removeDiacriticalMarks(string).toLowerCase();
 	}
