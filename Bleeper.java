@@ -1,5 +1,7 @@
 package me.FreeSpace2.EndSwear;
 
+import java.util.List;
+
 public class Bleeper {
 	public static String generateBleep(String string){
 		String[] bleepChars={"!","@","#","%","$","*"};
@@ -17,10 +19,10 @@ public class Bleeper {
 		}
 		return gen;
 	}
-	public static String generateBleep(String string, String[] bleepChars){
+	public static String generateBleep(String string, List<String> list){
 		String gen="";
 		for(int i=0;i<string.length();i++){
-			gen=gen+bleepChars[(int)(Math.random()*bleepChars.length)];
+			gen=gen+list.get((int) (Math.random()*list.size()));
 		}
 		return gen;
 	}
