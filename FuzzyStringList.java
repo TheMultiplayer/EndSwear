@@ -38,7 +38,11 @@ public class FuzzyStringList extends ArrayList<String>{
 		return super.add(string);
 	}
 	private String phoProcess(String stringToSearch){
-		return stringToSearch.toLowerCase().replace("es", "").replaceAll("[a-zA-Z]![a-zA-Z]", "i").replace("@", "a").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps").replace("got", "gt").replace("ks","x").replaceAll("(ing|in|er|ity|ies|able|y|ible|ous|ed|es|r|ers|a)$","").replaceAll("([aeiuy])\\1+", "o").replaceAll("^[aeiouy]$", "").replaceAll("(.)\\1+", "$1").replace("ph", "f").replace("ck", "k");
+		if(stringToSearch.length()>2){
+			return stringToSearch.toLowerCase().replace("@", "a").replaceAll("z$","s").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps").replace("got", "gt").replace("ks","x").replace("er","r").replace("!", "i").replaceAll("(ing|in|ity|ies|able|y|ible|ous|ed|es|ers|a)$","").replaceAll("([aeiuy])\\1+", "o").replaceAll("(.)\\1+", "$1").replace("ph", "f").replace("ck", "k").replaceAll("[^A-Za-z0-9]", "");
+		}else{
+			return stringToSearch+"null00unmatch*^*(&^*(";
+		}
 		
 	}
 

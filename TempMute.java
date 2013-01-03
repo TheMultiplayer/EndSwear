@@ -12,7 +12,7 @@ public class TempMute implements Listener{
 	TempMute(Player player, BukkitScheduler scheduler, Plugin plugin){
 		this.plugin=plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-		scheduler.scheduleAsyncDelayedTask(plugin, new UnMute(player, this), plugin.getConfig().getInt("swear.mute.time")*20L);
+		scheduler.scheduleSyncDelayedTask(plugin, new UnMute(player, this), plugin.getConfig().getInt("swear.mute.time")*20L);
 	}
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event){

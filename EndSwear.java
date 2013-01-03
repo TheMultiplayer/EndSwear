@@ -125,19 +125,19 @@ public class EndSwear extends JavaPlugin{
 		this.saveConfig();
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-		if (cmd.getName().equalsIgnoreCase("swear")){
-			if(args[0].equalsIgnoreCase("list")){
+		if (cmd.getName().equalsIgnoreCase("swear") && args.length>0){
+			if(args[0].equalsIgnoreCase("list") && sender.hasPermission("EndSwear.list")){
 				for(String str:wordList){
 					sender.sendMessage(str);
 				}
 				return true;
-			}else if(args[0].equalsIgnoreCase("pardon")){
+			}else if(args[0].equalsIgnoreCase("pardon") && sender.hasPermission("EndSwear.pardon")){
 				if (this.getServer().getOfflinePlayer(args[1]) != null){
 					config.set("tracker."+this.getServer().getOfflinePlayer(args[1]).getName(), 0);
 					sender.sendMessage(ChatColor.GREEN+"Pardoned!");
 				}
 				return true;
-			}else if(args[0].equalsIgnoreCase("add")){
+			}else if(args[0].equalsIgnoreCase("add")  && sender.hasPermission("EndSwear.add")){
 				if (!wordList.contains(args[1])){
 					addWord(args[1]);
 					sender.sendMessage(ChatColor.GREEN+"Word added!");
@@ -145,10 +145,10 @@ public class EndSwear extends JavaPlugin{
 					sender.sendMessage(ChatColor.RED+"That word is already in the dictionary!");
 				}
 				return true;
-			}else if(args[0].equalsIgnoreCase("info")){
+			}else if(args[0].equalsIgnoreCase("info")  && sender.hasPermission("EndSwear.info")){
 				sender.sendMessage("Player "+this.getServer().getOfflinePlayer(args[1]).getName()+" has sworn "+config.getInt("tracker."+this.getServer().getOfflinePlayer(args[1]).getName())+" times.");
 				return true;
-			}else if(args[0].equalsIgnoreCase("contains")){
+			}else if(args[0].equalsIgnoreCase("contains")  && sender.hasPermission("EndSwear.contains")){
 				if(wordList.phoneticMatch(args[1]).isOK()){
 					sender.sendMessage("That word has a dictionary match!");
 				}else{
@@ -156,9 +156,10 @@ public class EndSwear extends JavaPlugin{
 				}
 				return true;
 			}
-		return false;
+		}else{
+			sender.sendMessage(ChatColor.GOLD+""+ChatColor.UNDERLINE+"EndSwear"+ChatColor.RESET+""+ChatColor.LIGHT_PURPLE+" v"+this.getDescription().getVersion());
+			return true;
 		}
-		
 		return false;
 	}
 }
