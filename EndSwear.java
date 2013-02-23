@@ -107,7 +107,7 @@ public class EndSwear extends JavaPlugin{
 		config=this.getConfig();
 		String[] bleepChars={"!","@","#","%","\\$","\\*"};
 		config.addDefault("inform", true);
-		config.addDefault("swear.matchmode.sensitivity",2);
+		config.addDefault("swear.matchmode.substring", true);
 		config.addDefault("swear.message", "&cNo swearing, <PLAYER>! This is your <WARNING> warning!");
 		config.addDefault("swear.bleep.color", "&7&k");
 		config.addDefault("swear.bleep.chars", Arrays.asList(bleepChars));
@@ -149,10 +149,10 @@ public class EndSwear extends JavaPlugin{
 				sender.sendMessage("Player "+this.getServer().getOfflinePlayer(args[1]).getName()+" has sworn "+config.getInt("tracker."+this.getServer().getOfflinePlayer(args[1]).getName())+" times.");
 				return true;
 			}else if(args[0].equalsIgnoreCase("contains")  && sender.hasPermission("EndSwear.contains")){
-				if(wordList.phoneticMatch(args[1]).isOK()){
-					sender.sendMessage("That word has a dictionary match!");
+				if(wordList.phoneticMatch(args[1]).getMatched()){
+					sender.sendMessage("That word "+ChatColor.GREEN+"has "+ChatColor.RESET+"a dictionary match!");
 				}else{
-					sender.sendMessage("That word lacks a dictionary match!");
+					sender.sendMessage("That word "+ChatColor.RED+"lacks"+ChatColor.RESET+" a dictionary match!");
 				}
 				return true;
 			}

@@ -28,18 +28,32 @@ public class FuzzyStringList extends ArrayList<String>{
 	}
 	public StringMatch phoneticMatch(String stringToSearch){
 		if (phoneticArray.contains(phoProcess(stringToSearch))){
-			return new StringMatch(true, stringToSearch);
+			return new StringMatch(true, stringToSearch, phoProcess(stringToSearch));
 		}else{
-			return new StringMatch(false, stringToSearch);
+			return new StringMatch(false, stringToSearch, phoProcess(stringToSearch));
 		}
 	}
+	public StringMatch phoneticMatchSubstring(String stringToSearch){
+		if (phoneticArray.contains(phoProcess(stringToSearch))){
+			return new StringMatch(true, stringToSearch, phoProcess(stringToSearch));
+		}else{
+			for(String word:this){
+				if(stringToSearch.contains(word)){
+					return new StringMatch(true, stringToSearch, phoProcess(stringToSearch));
+				}
+			};
+			return new StringMatch(false, stringToSearch, phoProcess(stringToSearch));
+		}
+	}
+
+	
 	public boolean add(String string){
 		phoneticArray.add(phoProcess(string));
 		return super.add(string);
 	}
 	private String phoProcess(String stringToSearch){
 		if(stringToSearch.length()>2){
-			return stringToSearch.toLowerCase().replace("@", "a").replaceAll("z$","s").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps").replace("got", "gt").replace("ks","x").replace("er","r").replace("!", "i").replaceAll("(ing|in|ity|ies|able|y|ible|ous|ed|es|ers|a)$","").replaceAll("([aeiuy])\\1+", "o").replaceAll("(.)\\1+", "$1").replace("ph", "f").replace("ck", "k").replaceAll("[^A-Za-z0-9]", "");
+			return stringToSearch.toLowerCase().replace("@", "a").replaceAll("z$","s").replace("4", "h").replace("$","s").replace("0", "O").replace("'", "aps").replace("got", "gt").replace("ks","x").replace("er","r").replace("!", "i").replaceAll("(ing|in|ity|ies|able|y|ible|ous|ed|es|ers|a)$","").replaceAll("([aeiuy])\\1+", "o").replaceAll("(.)\\1+", "$1").replace("ph", "f").replaceAll("(ck)$", "k").replaceAll("[^A-Za-z0-9]", "");
 		}else{
 			return stringToSearch+"null00unmatch*^*(&^*(";
 		}

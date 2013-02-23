@@ -24,7 +24,9 @@ public class ChatListener implements Listener{
 		this.out=out;
 		this.config=config;
 		this.plugin=plugin;
-		bleepColor=config.getString("swear.bleep.color").replaceAll("(&([a-f0-9]))", "\u00A7$2").replace("&k", ChatColor.MAGIC+"");
+		if(config.getString("swear.bleep.color")!=null){
+			bleepColor=config.getString("swear.bleep.color").replaceAll("(&([a-f0-9]))", "\u00A7$2").replace("&k", ChatColor.MAGIC+"");
+		}
 	}
 	@SuppressWarnings("unchecked")
 	@EventHandler
@@ -33,11 +35,24 @@ public class ChatListener implements Listener{
 		String message=event.getMessage();
 		boolean censor = false;
 		for(String word:simplify(ChatColor.stripColor(event.getMessage())).split("[,./:;-`~()\\[\\]{}+ ]")){
-			StringMatch lM=wordList.phoneticMatch(word);
-			if(lM.isOK()){
+			if(word.equals("hand") | word.contains("cook")){
+				continue;
+			}
+			StringMatch lM;
+			if(config.getBoolean("swear.matchmode.substring")){
+				lM=wordList.phoneticMatchSubstring(word);
+			}else{
+				lM=wordList.phoneticMatch(word);
+			}
+			if(lM.getMatched()){
 				censor=true;
-				message=message.replaceAll("(?i:"+lM.getString()+")", ChatColor.RESET+bleepColor+Bleeper.generateBleep(lM.getString(),(List<String>) config.getList("swear.bleep.chars"))+ChatColor.RESET);
-			};
+				if(bleepColor!=null){
+					message=message.replaceAll("(?i:"+word+")", ChatColor.RESET+bleepColor+Bleeper.generateBleep(word,(List<String>) config.getList("swear.bleep.chars"))+ChatColor.RESET);
+				}else{
+					message=message.replaceAll("(?i:"+word+")", Bleeper.generateBleep(word,(List<String>) config.getList("swear.bleep.chars")));
+				}
+				out.info(event.getPlayer().getDisplayName()+" swore: "+lM.getString()+".");
+			}
 		}
 		event.setMessage(message);
 		if(censor){
