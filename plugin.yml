@@ -1,0 +1,41 @@
+name: EndSwear
+main: me.FreeSpace2.EndSwear.EndSwear
+version: 7.0A
+softdepend: [Vault]
+permissions:
+    EndSwear.bypass:
+        default: false
+commands:
+  swear:
+    description: The EndSwear base command. Returns the version of the plugin if used.
+    usage: /swear [command]
+  swear reload:
+    description: Reloads EndSwear.
+    permission: EndSwear.reload
+    permission-message: YOU *@#$!&%# ! YOU DO NOT HAVE THE <permission> PERMISSION NODE!
+    usage: /swear reload
+  swear info:
+    description: See just how much soap needs to go into a player's mouth.
+    permission: EndSwear.info
+    permission-message: I'm sorry, I can't do that! You lack the <permission> node.  Do you want a hug?
+    usage: /swear info [player]
+  swear list:
+    description: What all have you censored?
+    permission: EndSwear.list
+    permission-message: Well sir, I'm terribly sorry, but you don't have <permission>!
+    usage: /swear list
+  swear add:
+    description: Add a swear word to the list of swear words.
+    permission: EndSwear.add
+    permission-message: Censorship without <permission>!? Not on my watch!
+    usage: /swear add [word] 
+  swear contains:
+    description:  Art thou in thine list?
+    permission: EndSwear.contains
+    permission-message:  You can't do that; you lack the <permission> node.
+    usage: /swear contains [word]
+  swear contains:
+    description:  I hereby absolve you of all your chat-related sins.
+    permission: EndSwear.pardon
+    permission-message:  Nobody without the <permission> node escapes justice!
+    usage: /swear pardon [player]
