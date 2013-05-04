@@ -10,12 +10,15 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import me.FreeSpace2.EndSwear.matchers.*;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,7 +26,8 @@ public class EndSwear extends JavaPlugin{
 	Logger out;
 	Economy econ;
 	Configuration config;
-	FuzzyStringList wordList;
+	StringMatcher wordList;
+	FileConfiguration plist;
 	
 	public void onEnable(){
 		initConfig();
@@ -39,10 +43,9 @@ public class EndSwear extends JavaPlugin{
 			out.severe("Wordlist: FAIL");
 			return;
 		}
-		this.getServer().getPluginManager().registerEvents(new ChatListener(wordList, out, this.getConfig(), this), this);
+		this.getServer().getPluginManager().registerEvents(new ChatListener(wordList, out, this.getConfig(), plist, this), this);
 	}
 	public void onDisable(){
-		this.saveConfig();
 		out.info("Closing...");
 	}
 	private boolean setupEconomy() {
@@ -56,14 +59,25 @@ public class EndSwear extends JavaPlugin{
         econ = rsp.getProvider();
         return econ != null;
     }
-	private FuzzyStringList wordList(){
+	private StringMatcher wordList(){
 		File wordList=new File("plugins/EndSwear/words.txt");
-		FuzzyStringList fuzzyList = new FuzzyStringList();
+		StringMatcher fuzzyList;
+		switch(config.getString("matchmode.filtertype")){
+			case "synon":
+				fuzzyList = new SynonStringList();
+				break;
+			case "plaintext":
+				fuzzyList = new StringList();
+				break;
+			case "phonetic":
+				fuzzyList = new Pho
+		}
+		
 		if(!wordList.exists()){
 			try {
 				wordList.createNewFile();
 				PrintWriter out=new PrintWriter(new FileWriter(wordList, true));
-				BufferedReader reader=new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("words")));
+				BufferedReader reader=new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("words.dsr")));
 				String line;
 				while((line=reader.readLine())!=null){
 					out.println(line);
@@ -84,6 +98,8 @@ public class EndSwear extends JavaPlugin{
 			}
 			fReader.close();
 		} catch (Exception e) {
+			out.severe("Critical load failure! Hooking system to abort.");
+			e.printStackTrace();
 			return null;
 		}
 		return fuzzyList;
@@ -123,12 +139,34 @@ public class EndSwear extends JavaPlugin{
 		};
 		config.options().copyDefaults(true);
 		this.saveConfig();
+		File customConfigFile = new File("plugins/EndSwear/userData.yml");
+		if(!customConfigFile.exists()){
+			try {
+				customConfigFile.createNewFile();
+			} catch (IOException e) {
+				out.severe("Userdata: FAIL");
+				return;
+			}
+		}
+		plist = YamlConfiguration.loadConfiguration(customConfigFile);
+	}
+	public void savePlayerList(){
+		try {
+			plist.save(new File("plugins/EndSwear/userData.yml"));
+		} catch (IOException e) {
+			out.severe("Critical save error with user data!");
+		}
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if (cmd.getName().equalsIgnoreCase("swear") && args.length>0){
 			if(args[0].equalsIgnoreCase("list") && sender.hasPermission("EndSwear.list")){
-				for(String str:wordList){
-					sender.sendMessage(str);
+				String sqr="";
+				for(String[] str:wordList){
+					for(int i=0;i<str.length;i++){
+						sqr=sqr+str[i];
+					}
+					sender.sendMessage(sqr);
+					sqr="";
 				}
 				return true;
 			}else if(args[0].equalsIgnoreCase("pardon") && sender.hasPermission("EndSwear.pardon")){
@@ -149,7 +187,7 @@ public class EndSwear extends JavaPlugin{
 				sender.sendMessage("Player "+this.getServer().getOfflinePlayer(args[1]).getName()+" has sworn "+config.getInt("tracker."+this.getServer().getOfflinePlayer(args[1]).getName())+" times.");
 				return true;
 			}else if(args[0].equalsIgnoreCase("contains")  && sender.hasPermission("EndSwear.contains")){
-				if(wordList.phoneticMatch(args[1]).getMatched()){
+				if(wordList.fuzzilyContains(args[1])){
 					sender.sendMessage("That word "+ChatColor.GREEN+"has "+ChatColor.RESET+"a dictionary match!");
 				}else{
 					sender.sendMessage("That word "+ChatColor.RED+"lacks"+ChatColor.RESET+" a dictionary match!");
