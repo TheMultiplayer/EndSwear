@@ -8,12 +8,13 @@ import java.util.List;
 import me.FreeSpace2.EndSwear.StringMatcher;
 
 
-public class SynonStringList implements Serializable, Iterable<String[]>, StringMatcher{
+public class SynonStringList implements Serializable, StringMatcher{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7803519666213586122L;
 	ArrayList<String[]> phonemes = new ArrayList<String[]>();
+	ArrayList<String> words = new ArrayList<String>();
 	public boolean fuzzilyContains(String string){
 		String[] stArray=phoneticize(string);
 		for(String[] str:phonemes){
@@ -30,14 +31,14 @@ public class SynonStringList implements Serializable, Iterable<String[]>, String
 				}
 			}
 			if(similar/lesserString>0.68){
-				System.out.println(similar+"/"+lesserString+"="+similar/lesserString);
+				System.out.println(similar+"/"+lesserString+"="+similar/lesserString+" yields a "+(similar/lesserString>0.68));
 				return true;
 			}
 		}
 		return false;
 	}
 	public String[] phoneticize(String string){
-		string.replaceAll("(.)\\1+", "$1");
+		string.replaceAll("(.)\\1+", "$1").replaceAll("(ing|in|ity|ies|able|y|ible|ous|ed|es|ers|a)$","");
 		String lastPhernome=""+string.charAt(0);
 		boolean isReadyToMoveOn = false;
 		ArrayList<String> synons = new ArrayList<String>();
@@ -62,9 +63,11 @@ public class SynonStringList implements Serializable, Iterable<String[]>, String
 		return Arrays.copyOf(obj,obj.length,String[].class);
 	}
 	public boolean add(String string){
+		words.add(string);
 		return phonemes.add(phoneticize(string));
 	}
 	public void remove(String string){
+		words.remove(string);
 		phonemes.remove(string);
 	}
 	public boolean contains(String string){
@@ -89,10 +92,14 @@ public class SynonStringList implements Serializable, Iterable<String[]>, String
 		}
 		return bigram;
 	}
-	public Iterator<String[]> iterator() {
-		return phonemes.iterator();
+	public Iterator<String> iterator() {
+		return words.iterator();
 	}
 	public boolean isFuzzy() {
 		return true;
+	}
+	@Override
+	public String getType() {
+		return "synlist";
 	}
 }

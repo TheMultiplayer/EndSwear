@@ -9,57 +9,87 @@ import org.bukkit.entity.Player;
 public class Punishment implements Runnable{
 	Player player;
 	Configuration config;
+	Configuration plist;
 	EndSwear plugin;
-	String action="null";
+	Actions action;
 	String message;
-	Logger log;
+	int value;
+	private enum Actions {
+		KICK,BAN,MUTE,KILL,DAMAGE,EXPLOSION,LIGHTNING,WARN,FINE;
+	}
 	Punishment(Player player, EndSwear plugin){
 		this.player=player;
 		this.config=plugin.getConfig();
 		this.plugin=plugin;
-		log=plugin.getLogger();
+		this.plist=plugin.playerlist;
+		this.message=config.getString("swear.message").replaceAll("(&([a-f0-9]))", "\u00A7$2").replace("<PLAYER>", player.getDisplayName()).replace("<WARNING>", Integer.toString(plist.getInt("tracker."+player.getName()))+Ordinal.getOrdinal(plist.getInt("tracker."+player.getName())));
+		getPunishment();
+	}
+	private void getPunishment(){
 		for(String range:config.getConfigurationSection("swear.action").getKeys(false)){
 			//plugin.getLogger().info("Range:"+range+", Tracking #:"+config.getInt("tracker."+player.getDisplayName())+", Action:"+config.getString("swear.action."+range));
-			if(new Range(range).containsInclusive(config.getInt("tracker."+player.getDisplayName()))){
-				action=config.getString("swear.action."+range);
+			if(new Range(range).containsInclusive(plist.getInt("tracker."+player.getName()))){
+				String[] actionArray = config.getString("swear.action."+range).split(",");
+				action=Actions.valueOf(actionArray[0].toUpperCase());
+				if(actionArray.length>1){
+					value=Integer.parseInt(actionArray[1]);
+				};
 			}
 		}
-		this.message=config.getString("swear.message").replaceAll("(&([a-f0-9]))", "\u00A7$2").replace("<PLAYER>", player.getDisplayName()).replace("<WARNING>", Integer.toString(config.getInt("tracker."+player.getDisplayName()))+Ordinal.getOrdinal(config.getInt("tracker."+player.getDisplayName())));
 	}
+	
 	public void run() {
-		String name=player.getDisplayName();
-		if(action.equalsIgnoreCase("kick")){
+		Logger log=plugin.getLogger();
+		String name=player.getName();
+		switch(action){
+		case KICK:
 			log.info("Kicking player "+ name+".");
 			player.kickPlayer(message);
-		}else if(action.equalsIgnoreCase("damage")){
+			break;
+		case DAMAGE:
 			log.info("Damaging player "+ name+".");
-			player.damage(config.getInt("swear.damage"));
+			player.damage(value);
 			player.sendMessage(message);
-			return;
-		}else if(action.equalsIgnoreCase("explosion")){
+			break;
+		case EXPLOSION:
 			log.info("Detonating player "+ name+".");
 			player.getWorld().createExplosion(player.getLocation(), 0, false);
 			player.damage(20);
-			return;
-		}else if(action.equalsIgnoreCase("lightning")){
+			break;
+		case LIGHTNING:
 			log.info("Smiting player "+ name+".");
 			player.getWorld().strikeLightningEffect(player.getLocation());
 			player.damage(20);
-			return;
-		}else if(action.equalsIgnoreCase("ban")){
+			break;
+		case BAN:
 			log.info("Tempbanning player "+ name+".");
-			new TempBan(player, plugin.getServer().getScheduler(), plugin);
-		}else if(action.equalsIgnoreCase("mute")){
+			if(value>0){
+				new TempBan(player, plugin.getServer().getScheduler(), plugin,value);
+			}else{
+				player.setBanned(true);
+				player.kickPlayer(plugin.getConfig().getString("swear.ban.message.permanent").replaceAll("(&([a-f0-9]))", "\u00A7$2").replace("<PLAYER>", player.getDisplayName()).replace("<WARNING>", Integer.toString(plugin.getConfig().getInt("tracker."+player.getDisplayName()))+Ordinal.getOrdinal(plugin.getConfig().getInt("tracker."+player.getDisplayName()))));
+			}
+			break;
+		case MUTE:
 			player.sendMessage(ChatColor.RED+"You have been muted!");
 			log.info("Muting player "+ name+".");
-			new TempMute(player, plugin.getServer().getScheduler(), plugin);
-		}else if(action.equalsIgnoreCase("warn")){
+			new TempMute(player, plugin.getServer().getScheduler(), plugin,value);
+			break;
+		case WARN:
 			log.info("Warning player "+ name+".");
 			player.sendMessage(message);
-		}else if(action.equalsIgnoreCase("fine")){
+			break;
+		case FINE:
 			log.info("Fining player "+ name+".");
-			player.sendMessage("You have been fined "+ config.getInt("swear.fine")+" for swearing!");
-			plugin.econ.withdrawPlayer(player.getDisplayName(), config.getInt("swear.fine"));
+			player.sendMessage("You have been fined "+ value+" for swearing!");
+			plugin.econ.withdrawPlayer(player.getName(), value);
+			break;
+		case KILL:
+			player.damage(20);
+			player.sendMessage(message);
+			break;
+		default:
+			break;
 		}
 	}
 }

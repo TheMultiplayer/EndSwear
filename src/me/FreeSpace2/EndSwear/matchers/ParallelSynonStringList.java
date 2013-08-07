@@ -9,8 +9,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import me.FreeSpace2.EndSwear.StringMatcher;
 
-public class ParallelPhoneticStringList implements Serializable, Iterable<String[]>{
+
+public class ParallelSynonStringList implements Serializable, StringMatcher{
 	/**
 	 * 
 	 */
@@ -19,8 +21,7 @@ public class ParallelPhoneticStringList implements Serializable, Iterable<String
 	ArrayList<String[]> phonemes = new ArrayList<String[]>();
 	public boolean phoneticMatch(String string){
 		List<Future<Boolean>> threadedReturns=new ArrayList<Future<Boolean>>();
-		Object[] obj=phoneticize(string).toArray();
-		String[] stArray=Arrays.copyOf(obj,obj.length,String[].class);
+		String[] stArray=phoneticize(string);
 		for(String[] str:phonemes){
 			Future<Boolean> future=executor.submit(new CheckThread(stArray, str));
 			threadedReturns.add(future);
@@ -37,32 +38,39 @@ public class ParallelPhoneticStringList implements Serializable, Iterable<String
 		}
 		return false;
 	}
-	public ArrayList<String> phoneticize(String string){
+	public String[] phoneticize(String string){
 		string.replaceAll("(.)\\1+", "$1");
 		String lastPhernome=""+string.charAt(0);
-		ArrayList<String> phernomes = new ArrayList<String>();
+		boolean isReadyToMoveOn = false;
+		ArrayList<String> synons = new ArrayList<String>();
 		char c;
-		for(int i=1;i<string.length()-1;i++){
+		for(int i=1;i<string.length();i++){
+			
 			c=string.charAt(i);
 			if(isVowel(c)){
 				lastPhernome = lastPhernome+c;
-				phernomes.add(new String(lastPhernome));
-				lastPhernome = "";
+				isReadyToMoveOn=true;
 			}else{
+				if(isReadyToMoveOn){
+					synons.add(new String(lastPhernome));
+					lastPhernome = "";
+					isReadyToMoveOn=false;
+				}
 				lastPhernome=lastPhernome+c;
 			}
 		}
-		return phernomes;
+		synons.add(lastPhernome);
+		Object[] obj=synons.toArray();
+		return Arrays.copyOf(obj,obj.length,String[].class);
 	}
 	public boolean add(String string){
-		Object[] obj=phoneticize(string).toArray();
-		return phonemes.add(Arrays.copyOf(obj,obj.length,String[].class));
+		return phonemes.add(phoneticize(string));
 	}
 	public void remove(String string){
 		phonemes.remove(string);
 	}
 	public boolean contains(String string){
-		return phonemes.contains(phoneticize(string).toArray());
+		return phonemes.contains(phoneticize(string));
 	}
 	private static boolean isVowel(char chr){
 		return (chr == 'A' || chr == 'E' || chr == 'I' || chr == 'O' || chr == 'U' || chr == 'a' || chr == 'e' || chr == 'i' || chr == 'o' || chr == 'u');
@@ -102,7 +110,19 @@ public class ParallelPhoneticStringList implements Serializable, Iterable<String
 		
 	}
 	@Override
-	public Iterator<String[]> iterator() {
-		return phonemes.iterator();
+	public boolean isFuzzy() {
+		return true;
+	}
+	@Override
+	public boolean fuzzilyContains(String string) {
+		return contains(string);
+	}
+	@Override
+	public Iterator<String> iterator() {
+		return null;
+	}
+	@Override
+	public String getType() {
+		return "ppslist";
 	}
 }

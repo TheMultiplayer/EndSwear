@@ -1,6 +1,11 @@
 name: EndSwear
 main: me.FreeSpace2.EndSwear.EndSwear
-version: 7.0A
+description: An advanced anti-swear plugin implementing fuzzy matching.
+author: TheMultiplayer
+website: http://dev.bukkit.org/bukkit-plugins/endswear/
+database: false
+
+version: 9.1
 softdepend: [Vault]
 permissions:
     EndSwear.bypass:
@@ -25,6 +30,7 @@ commands:
     permission-message: Well sir, I'm terribly sorry, but you don't have <permission>!
     usage: /swear list
   swear add:
+    aliases: add
     description: Add a swear word to the list of swear words.
     permission: EndSwear.add
     permission-message: Censorship without <permission>!? Not on my watch!
@@ -34,7 +40,7 @@ commands:
     permission: EndSwear.contains
     permission-message:  You can't do that; you lack the <permission> node.
     usage: /swear contains [word]
-  swear contains:
+  swear pardon:
     description:  I hereby absolve you of all your chat-related sins.
     permission: EndSwear.pardon
     permission-message:  Nobody without the <permission> node escapes justice!

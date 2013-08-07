@@ -10,11 +10,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 public class TempMute implements Listener{
 	Plugin plugin;
 	Player player;
-	TempMute(Player player, BukkitScheduler scheduler, Plugin plugin){
+	TempMute(Player player, BukkitScheduler scheduler, Plugin plugin, int time){
 		this.plugin=plugin;
 		this.player=player;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-		scheduler.scheduleSyncDelayedTask(plugin, new UnMute(player, this), plugin.getConfig().getInt("swear.mute.time")*20L);
+		scheduler.scheduleSyncDelayedTask(plugin, new UnMute(player, this), time*20L);
 	}
 	@EventHandler
 	public void onPlayerChat(AsyncPlayerChatEvent event){
@@ -30,6 +30,7 @@ public class TempMute implements Listener{
 			this.tmp=tmp;
 		}
 		public void run(){
+			System.out.println("[EndSwear] Removing "+player.getName()+"'s mute!");
 			AsyncPlayerChatEvent.getHandlerList().unregister(tmp);
 		}
 	}
